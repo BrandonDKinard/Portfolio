@@ -1,0 +1,104 @@
+import mysql.connector
+from tkinter import *
+
+Order_Status = [ #https://stackoverflow.com/questions/45441885/how-can-i-create-a-dropdown-menu-from-a-list-in-tkinter
+"Quote",
+"Ordered",
+"Processing",
+"Shipped",
+"Invoiced",
+"Held",
+"Backordered",
+"Cancelled",
+"Returned",
+]
+
+fields= 'Order Number','Customer','Order Status'#https://www.python-course.eu/tkinter_entry_widgets.php
+
+master = Tk()
+
+variable = StringVar(master)
+variable.set(Order_Status[0]) # default value
+
+def fetch(entries):
+    for entry in entries:
+        field = entry[0]
+        if field == "Order Status":
+            text = variable.get()
+        else:
+            text  = entry[1].get()
+        print('%s: "%s"' % (field, text))
+        #create query string
+
+def makeform(root, fields):
+    entries = []
+    for field in fields:
+        row = Frame(root)
+        lab = Label(row, height=2 ,width=15, text=field, anchor='w')
+        if field == "Order Status":
+            ent = OptionMenu(row, variable, *Order_Status)
+        else:
+            ent = Entry(row)
+        row.pack(side=TOP, fill=X, padx=5, pady=5)
+        lab.pack(side=LEFT)
+        ent.pack(side=RIGHT, expand=YES, fill=X)
+        entries.append((field, ent))
+    return entries
+
+if __name__ == '__main__':
+    try:
+        mydb = mysql.connector.connect(
+            host="penguin.cairn.edu",
+            user="bk725",
+            password="BrandonKinard",
+            database="eduerp"
+        )
+    except mysql.connector.Error as e:
+        print(e.msg)
+    ents = makeform(master, fields)
+    master.bind('<Return>', (lambda event, e=ents: fetch(e)))
+    b1 = Button(master, text='Send',
+                  command=(lambda e=ents: fetch(e)))
+    b1.pack(side=LEFT, padx=5, pady=5)
+    b2 = Button(master, text='Cancel', command=master.destroy)
+    b2.pack(side=LEFT, padx=5, pady=5)
+    master.mainloop()
+
+#def cancel:
+
+
+
+#ask for user to input values into fields with specified destinations
+
+#put values into the database
+mycursor = mydb.cursor()
+
+add_order = "INSERT INTO sales_header " \
+            "(customer_id, sales_order_status, currency_code, created_by, creation_date, last_update_by, last_update_date) " \
+            "VALUES (%s, %s, 'USD', 1, now(), 1, now())"
+
+#val = ("", "")
+mycursor.execute(add_order, [entries[1].get(),variable.get()])
+
+cnx.commit()
+
+
+mydb.commit()
+
+print(mycursor.rowcount, "record inserted.")
+
+#DO TKINTER FORMS NEXT
+
+#this will be where the standard sales fields will go
+
+#GUI Stuff
+
+#Field code
+
+#Draft info
+
+    #Confirm
+
+    #Edit
+
+#Database Connection
